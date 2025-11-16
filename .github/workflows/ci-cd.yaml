@@ -11,7 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout your repository
+      # Step 1: Checkout the repository
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -27,18 +27,18 @@ jobs:
           python -m pip install --upgrade pip
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      # Step 4: Run tests (optional, if you have tests)
+      # Step 4: Run tests (optional)
       - name: Run tests
         run: |
           if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
 
-      # Step 5: Build artifact (optional)
+      # Step 5: Build project (optional)
       - name: Build project
         run: |
           mkdir -p dist
           echo "Build placeholder" > dist/build.txt
 
-      # Step 6: Upload artifact
+      # Step 6: Upload artifact using latest version
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
