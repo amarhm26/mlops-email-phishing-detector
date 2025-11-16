@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # Step 1: Checkout the repository
-      - name: Checkout Repo
+      # Step 1: Checkout your repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
       # Step 2: Set up Python
@@ -21,44 +21,26 @@ jobs:
         with:
           python-version: "3.10"
 
-      # Step 3: Cache pip dependencies
-      - name: Cache pip
-        uses: actions/cache@v4
-        with:
-          path: ~/.cache/pip
-          key: ${{ runner.os }}-pip-${{ hashFiles('**/requirements.txt') }}
-          restore-keys: |
-            ${{ runner.os }}-pip-
-
-      # Step 4: Install dependencies
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: |
-          pip install --upgrade pip
-          pip install -r requirements.txt
+          python -m pip install --upgrade pip
+          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
-      # Step 5: Run tests
-      - name: Run Tests
-        run: pytest --maxfail=1
+      # Step 4: Run tests (optional, if you have tests)
+      - name: Run tests
+        run: |
+          if [ -f pytest.ini ] || [ -d tests ]; then pytest; fi
 
-      # Step 6: Prepare artifacts directory
-      - name: Prepare Artifacts Directory
-        run: mkdir -p artifacts
+      # Step 5: Build artifact (optional)
+      - name: Build project
+        run: |
+          mkdir -p dist
+          echo "Build placeholder" > dist/build.txt
 
-      # Step 7: Upload model artifacts
-      - name: Upload Model Artifacts
+      # Step 6: Upload artifact
+      - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: phishing-artifacts
-          path: artifacts/
-
-      # Step 8: Deploy to Remote Server
-      - name: Deploy Artifacts via SSH
-        if: success()   # only run if previous steps succeed
-        uses: appleboy/ssh-action@v0.1.9
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          port: ${{ secrets.SERVER_PORT }}
-          source: "artifacts/"
-          target: "/path/on/server/to/deploy/"
+          name: my-artifact
+          path: dist/
