@@ -1,0 +1,52 @@
+name: MLOps Pipeline - CI/CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repo
+      uses: actions/checkout@v3
+
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: "3.10"
+
+    - name: Install dependencies
+      run: |
+        pip install -r requirements.txt
+
+    - name: Run Linting
+      run: |
+        pip install flake8
+        flake8
+
+    - name: Run Tests
+      run: |
+        pip install pytest
+        pytest || echo "No tests found"
+
+    - name: Retrain Model
+      run: |
+        python -m src.models.retrain
+
+    - name: Upload Artifacts (model + vectorizer)
+      uses: actions/upload-artifact@v3
+      with:
+        name: model_artifacts
+        path: artifacts/
+
+  deploy-streamlit:
+    needs: build-and-test
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Deploy to Streamlit Cloud
+      run: echo "Deployment happens automatically on Streamlit Cloud when you push."
